@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alexander Kiper — AI-First Backend Engineer</title>
+<meta name="description" content="Python backend engineer building and operating production AI-powered systems in crypto & fintech. Anthropic Claude API in production, live trading infrastructure, on-chain reconciliation.">
+<meta name="theme-color" content="#090d14" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)">
+<style>
+  /* ============ tokens ============ */
+  :root{
+    --bg:#090d14;
+    --card:#0f1520;
+    --card-2:#131a28;
+    --line:#1f2836;
+    --fg:#e9edf3;
+    --muted:#9aa5b6;
+    --dim:#68738a;
+    --accent:#ecb43a;          /* signal amber — marks, fills */
+    --accent-ink:#f0bd52;      /* amber safe for text on bg */
+    --accent-dim:rgba(236,180,58,.45);
+    --accent-wash:rgba(236,180,58,.08);
+    --live:#3fd37e;            /* green = live status ONLY */
+    --btn-ink:#221703;
+    --grid:rgba(214,222,235,.05);
+    --glow:rgba(236,180,58,.07);
+    --mono:ui-monospace,'Cascadia Code','SF Mono','JetBrains Mono',Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#fafaf7;
+      --card:#ffffff;
+      --card-2:#f3f2ec;
+      --line:#e2e1da;
+      --fg:#171b22;
+      --muted:#4a525f;
+      --dim:#747c8a;
+      --accent:#e0a52a;
+      --accent-ink:#8a5c00;
+      --accent-dim:rgba(160,112,10,.5);
+      --accent-wash:rgba(224,165,42,.10);
+      --live:#177a44;
+      --btn-ink:#221703;
+      --grid:rgba(23,27,34,.055);
+      --glow:rgba(224,165,42,.10);
+    }
+  }
+
+  /* ============ base ============ */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--fg); font-family:var(--sans);
+    line-height:1.65; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  /* blueprint grid, fading below the hero */
+  body::before{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background-image:
+      radial-gradient(720px 420px at 82% -60px, var(--glow), transparent 70%),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size:auto, 44px 44px, 44px 44px;
+    -webkit-mask-image:radial-gradient(120% 72% at 50% 0%, #000 30%, transparent 78%);
+    mask-image:radial-gradient(120% 72% at 50% 0%, #000 30%, transparent 78%);
+  }
+  ::selection{background:var(--accent); color:var(--btn-ink)}
+  .wrap{max-width:880px; margin:0 auto; padding:0 24px}
+  a{color:var(--accent-ink); text-decoration:none}
+  a:hover{text-decoration:underline; text-underline-offset:3px}
+  :focus-visible{outline:2px solid var(--accent-ink); outline-offset:3px; border-radius:4px}
+
+  /* recurring identity mark: the amber square */
+  .sq{display:inline-block; width:.5em; height:.5em; background:var(--accent); flex:none}
+
+  /* ============ hero ============ */
+  header{padding:clamp(72px,12vh,120px) 0 56px}
+  .status{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:.75rem; letter-spacing:.06em;
+    color:var(--muted); border:1px solid var(--line); background:var(--card);
+    border-radius:999px; padding:7px 14px; margin-bottom:34px;
+  }
+  .status .dot{width:8px; height:8px; border-radius:50%; background:var(--live); flex:none}
+  .eyebrow{
+    font-family:var(--mono); font-size:.8rem; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--accent-ink); margin-bottom:16px;
+  }
+  h1{
+    font-size:clamp(2.5rem,8vw,4.3rem); line-height:1.02; letter-spacing:-.035em;
+    font-weight:800; text-wrap:balance;
+  }
+  h1 .sq{width:.16em; height:.16em; margin-left:.14em; transform:translateY(-.04em)}
+  .tagline{
+    font-size:clamp(1.08rem,2.6vw,1.4rem); color:var(--muted); margin-top:22px; font-weight:500;
+    max-width:660px; line-height:1.5; text-wrap:balance;
+  }
+  .tagline em{color:var(--fg); font-style:italic}
+  .intro{margin-top:18px; font-size:1.04rem; color:var(--muted); max-width:640px}
+  .cta{display:flex; flex-wrap:wrap; gap:12px; margin-top:36px}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:10px;
+    font-size:.94rem; font-weight:600; border:1px solid var(--line);
+    background:var(--card); color:var(--fg);
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .btn:hover{text-decoration:none; transform:translateY(-1px); border-color:var(--accent-dim)}
+  .btn.primary{background:var(--accent); color:var(--btn-ink); border-color:var(--accent)}
+  .btn.primary:hover{filter:brightness(1.06)}
+
+  /* ============ sections ============ */
+  main section{padding:60px 0 8px; border-top:1px solid var(--line)}
+  main section:last-of-type{padding-bottom:24px}
+  .kicker{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--mono); font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--dim); margin-bottom:14px;
+  }
+  h2{font-size:clamp(1.45rem,3.4vw,1.85rem); letter-spacing:-.02em; font-weight:750; margin-bottom:8px}
+  h2 .live-tag{
+    font-family:var(--mono); font-size:.52em; font-weight:600;
+    color:var(--live); letter-spacing:.05em;
+    vertical-align:.34em; margin-left:.25em; white-space:nowrap;
+  }
+  .lead{color:var(--muted); margin-bottom:28px; max-width:640px}
+
+  /* ============ pipeline (signature) ============ */
+  .pipe{position:relative; margin:36px 0 40px; padding:4px 0}
+  .pipe::before{
+    content:""; position:absolute; left:5px; top:12px; bottom:12px; width:2px;
+    background:linear-gradient(180deg, transparent, var(--line) 7%, var(--line) 93%, transparent);
+  }
+  .pulse{
+    position:absolute; left:1px; top:0; width:10px; height:10px;
+    background:var(--accent); box-shadow:0 0 14px 2px var(--accent-wash), 0 0 5px var(--accent-dim);
+    opacity:0; pointer-events:none;
+  }
+  .stage{
+    position:relative; display:flex; align-items:baseline; gap:16px;
+    padding:0 0 0 36px; margin-bottom:26px;
+  }
+  .stage:last-child{margin-bottom:0}
+  .stage::before{
+    content:""; position:absolute; left:1px; top:.42em; width:10px; height:10px;
+    background:var(--accent);
+  }
+  .stage .num{font-family:var(--mono); font-size:.72rem; letter-spacing:.12em; color:var(--dim); flex:none}
+  .stage .name{font-size:clamp(1.02rem,2.4vw,1.18rem); font-weight:650; letter-spacing:-.01em}
+
+  /* ============ stats ============ */
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin:0 0 34px}
+  .stat{
+    position:relative; background:var(--card); border:1px solid var(--line);
+    border-radius:12px; padding:20px 18px 16px; overflow:hidden;
+  }
+  .stat::before{content:""; position:absolute; top:0; left:18px; width:28px; height:3px; background:var(--accent)}
+  .stat .n{font-size:1.85rem; font-weight:700; font-family:var(--mono); letter-spacing:-.03em; line-height:1.1}
+  .stat .l{font-size:.8rem; color:var(--muted); margin-top:6px; line-height:1.45}
+
+  /* ============ feature lists ============ */
+  ul.feat{list-style:none; margin-top:6px}
+  ul.feat li{position:relative; padding-left:26px; margin-bottom:14px; color:var(--muted)}
+  ul.feat li::before{
+    content:""; position:absolute; left:2px; top:.52em; width:8px; height:8px; background:var(--accent);
+  }
+  ul.feat li strong{color:var(--fg); font-weight:650}
+
+  /* understated aside — outline square echoes the filled marks above it */
+  .note{
+    position:relative; padding-left:26px; margin:30px 0 12px;
+    font-family:var(--mono); font-size:.8rem; letter-spacing:.01em;
+    color:var(--dim); max-width:640px;
+  }
+  .note::before{
+    content:""; position:absolute; left:2px; top:.4em; width:8px; height:8px;
+    border:1px solid var(--accent-dim); background:transparent;
+  }
+
+  /* ============ repo card ============ */
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:26px 26px 22px; margin-top:22px;
+    transition:border-color .2s ease;
+  }
+  .card:hover{border-color:var(--accent-dim)}
+  .card ul.feat li:last-child{margin-bottom:0}   /* even 26/22 padding — no stray list margin */
+  .card h3{font-family:var(--mono); font-size:1.08rem; font-weight:700; display:flex; align-items:center; gap:12px; flex-wrap:wrap; letter-spacing:-.01em}
+  .badge{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:var(--mono); font-size:.7rem; font-weight:500; letter-spacing:.05em;
+    padding:4px 11px; border-radius:999px; color:var(--muted);
+    border:1px solid var(--line); background:var(--bg);
+  }
+  /* two badge variants: green dot = live status; amber square = category tag */
+  .badge .dot{width:6px; height:6px; border-radius:50%; background:var(--live)}
+  .badge .sq{width:6px; height:6px}
+  .repo{font-family:var(--mono); font-size:.82rem; margin-top:8px}
+  .card > p{color:var(--muted); margin-top:14px}
+
+  /* ============ stack chips ============ */
+  .chips{display:flex; flex-wrap:wrap; gap:9px; margin:10px 0 30px}
+  .chip{
+    font-family:var(--mono); font-size:.82rem; padding:7px 13px; border-radius:8px;
+    background:var(--card); border:1px solid var(--line); color:var(--muted);
+  }
+  .chip.hl{color:var(--fg); border-color:var(--accent-dim); background:var(--accent-wash)}
+
+  /* ============ contact ============ */
+  .mail{
+    display:inline-block; font-family:var(--mono); font-weight:650;
+    font-size:clamp(1.05rem,4.6vw,1.65rem); letter-spacing:-.02em;
+    color:var(--fg); border-bottom:2px solid var(--accent);
+    padding-bottom:3px; margin:6px 0 22px; overflow-wrap:anywhere;
+    transition:color .15s ease;
+  }
+  .mail:hover{color:var(--accent-ink); text-decoration:none}
+  .contact-links{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:26px}
+
+  footer{
+    padding:36px 0 64px; border-top:1px solid var(--line);
+    font-family:var(--mono); font-size:.78rem; letter-spacing:.05em;
+    color:var(--dim); display:flex; align-items:center; gap:10px;
+  }
+
+  /* ============ motion (opt-in only) ============ */
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes rise{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
+    header > *{animation:rise .65s cubic-bezier(.2,.7,.2,1) both}
+    header > *:nth-child(2){animation-delay:.07s}
+    header > *:nth-child(3){animation-delay:.14s}
+    header > *:nth-child(4){animation-delay:.21s}
+    header > *:nth-child(5){animation-delay:.28s}
+    header > *:nth-child(6){animation-delay:.35s}
+
+    @keyframes beat{0%,100%{box-shadow:0 0 0 0 rgba(63,211,126,.45)} 55%{box-shadow:0 0 0 5px rgba(63,211,126,0)}}
+    .status .dot{animation:beat 2.6s ease-out infinite}
+
+    @keyframes travel{
+      0%{top:0; opacity:0}
+      7%{opacity:1}
+      90%{opacity:1}
+      100%{top:calc(100% - 10px); opacity:0}
+    }
+    .pulse{animation:travel 6.5s linear infinite}
+
+    @supports (animation-timeline: view()){
+      main section > *{
+        animation:rise linear both;
+        animation-timeline:view();
+        animation-range:entry 0% entry 34%;
+      }
+    }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="status"><span class="dot" aria-hidden="true"></span>live in production · running unattended</p>
+    <div class="eyebrow">Python · AI-First · FinTech &amp; Crypto</div>
+    <h1>Alexander Kiper<span class="sq" aria-hidden="true"></span></h1>
+    <p class="tagline">I build and operate <em>autonomous AI agents</em> that make decisions with real capital — in production, unattended.</p>
+    <p class="intro">I ship end-to-end: design, deploy, and run services unattended in production — transaction lifecycle, reconciliation, data pipelines, and LLM integration. Claude and AI tools are part of my daily development workflow.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Alex-profff" target="_blank" rel="noopener">GitHub ↗</a>
+      <a class="btn" href="mailto:dronvlas480@gmail.com">Email</a>
+      <a class="btn" href="https://t.me/Alexsspb78" target="_blank" rel="noopener">Telegram</a>
+    </div>
+  </header>
+
+  <main>
+
+  <section>
+    <div class="kicker"><span class="sq" aria-hidden="true"></span>Flagship — live in production</div>
+    <h2>Autonomous trading system <span class="live-tag">(live)</span></h2>
+    <p class="lead">1.5 years building and iterating · running continuously in production, unattended.</p>
+
+    <div class="pipe" role="list" aria-label="System pipeline">
+      <span class="pulse" aria-hidden="true"></span>
+      <div class="stage" role="listitem"><span class="num">01</span><span class="name">Market scanning</span></div>
+      <div class="stage" role="listitem"><span class="num">02</span><span class="name">Claude Vision analysis</span></div>
+      <div class="stage" role="listitem"><span class="num">03</span><span class="name">Decision engine</span></div>
+      <div class="stage" role="listitem"><span class="num">04</span><span class="name">Execution · Jupiter (Solana DEX)</span></div>
+      <div class="stage" role="listitem"><span class="num">05</span><span class="name">On-chain reconciliation · Helius</span></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">1.5 yr</div><div class="l">building &amp; operating in production</div></div>
+      <div class="stat"><div class="n">100+</div><div class="l">on-chain transactions reconciled</div></div>
+      <div class="stat"><div class="n">50+</div><div class="l">automated positions, real capital</div></div>
+      <div class="stat"><div class="n">5</div><div class="l">external APIs in parallel</div></div>
+    </div>
+
+    <ul class="feat">
+      <li><strong>Full transaction lifecycle</strong> — entry → TP/SL monitoring → timed closure → compensation on API errors → reversal on invalid data. Every fill reconciled against on-chain state (expected vs. actual), with discrepancy detection and automated alerts.</li>
+      <li><strong>Anthropic API (Claude Vision + Sonnet)</strong> in production for analysis and decision-making — prompt engineering, structured output parsing, confidence grading, fallback logic. 20–30 Vision analyses per day.</li>
+      <li><strong>Continuous operation at scale</strong> — 500 items screened per pass every 30 min, 5 external APIs with fallback, staleness detection, and cross-source validation.</li>
+      <li><strong>Reliability engineering</strong> — runs 24/7 under systemd: kill-switch, heartbeat monitoring, output-freshness watchdog, log rotation, automated backups. Unattended for weeks.</li>
+      <li><strong>Incident-hardened</strong> — silent stalls, source outages, data-quality bugs: found, fixed, and monitored against recurrence.</li>
+    </ul>
+    <p class="note">Architecture and on-chain history — walk-through available on request.</p>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="sq" aria-hidden="true"></span>Open source</div>
+    <h2>Proof you can read</h2>
+    <p class="lead">The trading system above isn't public — the strategy stays private. But the engineering behind it is: the same cross-source reconciliation that runs in production caught two real bugs in this open-source monitor.</p>
+    <div class="card">
+      <h3>solana-tca-monitor <span class="badge"><span class="dot" aria-hidden="true"></span>operating since Jul 2026</span></h3>
+      <div class="repo"><a href="https://github.com/Alex-profff/solana-tca-monitor" target="_blank" rel="noopener">github.com/Alex-profff/solana-tca-monitor ↗</a></div>
+      <p>Transaction-cost-analysis service for Solana. Measures effective spread, price-impact curves, and quote latency (p50/p99) across a mixed-liquidity basket.</p>
+      <ul class="feat" style="margin-top:16px">
+        <li><strong>Cross-source reconciliation caught two real data bugs</strong> a single source would have silently trusted — full postmortem and regression tests in the repo.</li>
+        <li>Runs <strong>unattended under systemd</strong> with watchdog → Telegram alerts. SQLite time series. <strong>ruff + mypy + pytest in CI.</strong></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="sq" aria-hidden="true"></span>Also built</div>
+    <h2>More shipped, different domains</h2>
+    <p class="lead">The flagship isn't a one-off. I ship production systems across domains — a fintech product and trading infrastructure, each running under systemd with its own monitoring.</p>
+
+    <div class="card">
+      <h3>ТаксиПолис — B2B insurance bot <span class="badge"><span class="sq" aria-hidden="true"></span>FinTech · B2B</span></h3>
+      <p>A Telegram product for selling fleet insurance (ОСАГО / ОСГОП) to taxi companies — application intake, document capture, an operator workflow, and automated renewal reminders. Built as a real commercial B2B product with regulated personal-data handling.</p>
+      <ul class="feat" style="margin-top:16px">
+        <li><strong>Compliance built in</strong> — personal-data consent and revocation, auto-expiry of uploaded documents, and data-localization-compliant hosting.</li>
+        <li><strong>Production stack</strong> — aiogram 3, async SQLAlchemy + PostgreSQL, Redis FSM, APScheduler, 4-language i18n, Alembic migrations, tests. Runs under systemd with a heartbeat watchdog.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Solana execution platform <span class="badge"><span class="sq" aria-hidden="true"></span>Trading infra</span></h3>
+      <p>A strategy-agnostic, low-latency execution layer for Solana — order execution with slippage and price-impact control, deliberately decoupled from any trading strategy.</p>
+      <ul class="feat" style="margin-top:16px">
+        <li><strong>Execution engineering</strong> — low-latency order submission with slippage and price-impact guards.</li>
+        <li><strong>Reliability</strong> — multi-provider RPC failover, health monitoring with alerts, and auto-restart under systemd.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="sq" aria-hidden="true"></span>What I'm good at</div>
+    <h2>Reliable AI systems, in production</h2>
+    <ul class="feat" style="margin-top:18px">
+      <li><strong>Production LLM integration</strong> — not demos. Systems where a wrong output costs real money: structured parsing, confidence grading, cost tracking, graceful degradation.</li>
+      <li><strong>AI agent orchestration from scratch</strong> — data collection → analysis → structured decision → execution → verification, built without a framework because it fit the problem better.</li>
+      <li><strong>Measure first, then fix</strong> — reconciliation, evals, and regression tests before conclusions. If it can't be measured, the first job is to make it measurable.</li>
+      <li><strong>Operate what I build</strong> — one-person design → deploy → monitor → iterate loop, hardened through real production incidents.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="sq" aria-hidden="true"></span>Stack</div>
+    <h2>Tools</h2>
+    <div class="chips">
+      <span class="chip hl">Python</span>
+      <span class="chip hl">asyncio</span>
+      <span class="chip hl">Anthropic API (Claude)</span>
+      <span class="chip hl">Claude Code</span>
+      <span class="chip">MCP</span>
+      <span class="chip">Playwright</span>
+      <span class="chip">REST API</span>
+      <span class="chip">Docker</span>
+      <span class="chip">systemd</span>
+      <span class="chip">SQLite</span>
+      <span class="chip">Solana · Jupiter · Helius · DexScreener</span>
+      <span class="chip">Git / CI</span>
+      <span class="chip">ruff · mypy · pytest</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker"><span class="sq" aria-hidden="true"></span>Contact</div>
+    <h2>Let's talk</h2>
+    <p class="lead">Open to remote roles in AI engineering, LLM integration, Python backend, and trading systems.</p>
+    <a class="mail" href="mailto:dronvlas480@gmail.com">dronvlas480@gmail.com</a>
+    <div class="contact-links">
+      <a class="btn" href="https://github.com/Alex-profff" target="_blank" rel="noopener">github.com/Alex-profff</a>
+      <a class="btn" href="https://t.me/Alexsspb78" target="_blank" rel="noopener">@Alexsspb78</a>
+    </div>
+  </section>
+
+  </main>
+
+  <footer>
+    <span class="sq" aria-hidden="true"></span>Built and hosted by me · Remote · UTC+3
+  </footer>
+
+</div>
+</body>
+</html>
